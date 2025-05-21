@@ -1,5 +1,5 @@
 # Makefile
-
+.PHONY: test
 RPC_URL=http://localhost:8545
 
 # Load .env automatically (if using bash)

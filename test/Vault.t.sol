@@ -2,27 +2,32 @@
 pragma solidity ^0.8.13;
 
 import {Test, console} from "forge-std/Test.sol";
-import {LPToken} from "../src/LPToken.sol";
 import {Vault} from "../src/Vault.sol";
+import {LPToken} from "../src/LPToken.sol";
 import {MockUSDT} from "./mock/MockUSDT.sol";
 
 contract VaultTest is Test {
     Vault public vault;
-    LPToken public lPToken;
+    LPToken public lpToken;
     MockUSDT public mockUSDT;
 
     address public owner = makeAddr("owner");
     address public user = makeAddr("user");
 
     function setUp() public {
-        vm.startBroadcast(owner);
+        vm.startPrank(owner);
 
         mockUSDT = new MockUSDT();
+        lpToken = new LPToken();
 
-        lPToken = new LPToken();
+        vault = new Vault(address(mockUSDT), address(lpToken));
 
-        vault = new Vault(address(mockUSDT), address(lPToken));
+        lpToken.grantMintAndBurnRole(address(vault));
 
-        vm.stopBroadcast();
+        vm.stopPrank();
     }
+
+    function testDeposit() public {}
+
+    function testWithdraw() public {}
 }
