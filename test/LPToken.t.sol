@@ -12,10 +12,10 @@ contract LPTokenTest is Test {
     address public user = makeAddr("user");
 
     function setUp() public {
-        vm.startBroadcast(owner);
+        vm.startPrank(owner);
         lPToken = new LPToken();
         lPToken.grantMintAndBurnRole(owner);
-        vm.stopBroadcast();
+        vm.stopPrank();
     }
 
     function test_MintToken() public {

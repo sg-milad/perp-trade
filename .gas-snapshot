@@ -1,0 +1,8 @@
+LPTokenTest:test_BurnToken() (gas: 50793)
+LPTokenTest:test_BurnTokenWithZeroBalance() (gas: 17477)
+LPTokenTest:test_MintToken() (gas: 63747)
+LPTokenTest:test_MintTokenForUser() (gas: 65789)
+LPTokenTest:test_RevertIfUserCallBurn() (gas: 15017)
+LPTokenTest:test_RevertIfUserCallMint() (gas: 15193)
+VaultTest:testDeposit() (gas: 232)
+VaultTest:testWithdraw() (gas: 165)
