@@ -1,5 +1,5 @@
 @openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
-
+@chainlink/contracts/=lib/foundry-chainlink-toolkit/
 
 forge-std/=lib/forge-std/src/
 
