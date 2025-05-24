@@ -38,6 +38,7 @@ contract VaultTest is Test {
         vault.deposit(TEST_AMOUNT);
 
         assertEq(mockUSDT.balanceOf(user), 0, "USDT not deposited");
+        assertEq(vault.totalLiquidity(), TEST_AMOUNT, "total liqudity is wrong");
         assertEq(mockUSDT.balanceOf(address(vault)), TEST_AMOUNT, "Vault USDT balance incorrect");
         assertEq(lpToken.balanceOf(user), TEST_AMOUNT, "LP tokens not minted");
 
@@ -59,6 +60,7 @@ contract VaultTest is Test {
         // Verify post-withdrawal state
         assertEq(mockUSDT.balanceOf(user), TEST_AMOUNT, "USDT not returned");
         assertEq(lpToken.balanceOf(user), 0, "LP tokens not burned");
+        assertEq(vault.totalLiquidity(), 0, "total liqudity is wrong");
         assertEq(mockUSDT.balanceOf(address(vault)), 0, "Vault USDT not deducted");
 
         vm.stopPrank();
