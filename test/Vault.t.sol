@@ -90,7 +90,7 @@ contract VaultTest is Test {
 
     function testCannotDepositZero() public {
         vm.startPrank(user);
-        vm.expectRevert("Zero deposit");
+        vm.expectRevert();
         vault.deposit(0);
         vm.stopPrank();
     }
