@@ -162,8 +162,17 @@ contract PerpEngineTest is Test {
         int256 unrealizedPnL = perpEngine.getUnrealizedPnL(positionId);
         assertLt(unrealizedPnL, 0); // Should be negative (loss)
 
+        // Get balance before closing
+        uint256 balanceBefore = usdt.balanceOf(alice);
         // Close position
         perpEngine.closePosition(positionId);
+
+        uint256 balanceAfter = usdt.balanceOf(alice);
+
+        // Expected profit + collateral - trading fee = 1000 + 500 - 5 = 1495 USDT
+        uint256 expectedLoss = 495e6;
+        uint256 actualLoss = balanceAfter - balanceBefore;
+        assertEq(expectedLoss, actualLoss);
 
         // Check position is inactive
         PerpEngine.Position memory position = perpEngine.getPosition(positionId);
