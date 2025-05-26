@@ -91,7 +91,6 @@ This protocol is built by a solo dev—but it doesn't have to stay that way!
 
 * Frontend development (React / ethers.js or viem)
 * UI design & UX improvements
-* Advanced oracle integration (e.g., Chainlink)
 * Audit & security reviews
 * Writing docs or tutorials
 * Extending the liquidation bot
