@@ -3,4 +3,11 @@ src = "src"
 out = "out"
 libs = ["lib"]
 
+[invariant]
+runs = 64
+depth = 64
+fail_on_revert = true
+DAPP_FUZZ_RUNS = 1000
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
+[fuzz]
+# fuzz_runs = 1000

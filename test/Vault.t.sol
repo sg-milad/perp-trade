@@ -45,6 +45,25 @@ contract VaultTest is Test {
         vm.stopPrank();
     }
 
+    function test_FuzzDeposit(uint256 amount) public {
+        vm.startPrank(user);
+        vm.assume(amount > 0 && amount <= 1_000_000_000e6);
+        mockUSDT.mint(user, amount);
+        mockUSDT.approve(address(vault), amount);
+
+        assertEq(mockUSDT.balanceOf(user), amount, "Initial USDT balance incorrect");
+        assertEq(lpToken.balanceOf(user), 0, "Initial LP balance should be zero");
+
+        vault.deposit(amount);
+
+        assertEq(mockUSDT.balanceOf(user), 0, "USDT not deposited");
+        assertEq(vault.totalLiquidity(), amount, "total liqudity is wrong");
+        assertEq(mockUSDT.balanceOf(address(vault)), amount, "Vault USDT balance incorrect");
+        assertEq(lpToken.balanceOf(user), amount, "LP tokens not minted");
+
+        vm.stopPrank();
+    }
+
     function testWithdraw() public {
         // Setup deposit first
         vm.startPrank(user);
@@ -59,6 +78,28 @@ contract VaultTest is Test {
 
         // Verify post-withdrawal state
         assertEq(mockUSDT.balanceOf(user), TEST_AMOUNT, "USDT not returned");
+        assertEq(lpToken.balanceOf(user), 0, "LP tokens not burned");
+        assertEq(vault.totalLiquidity(), 0, "total liqudity is wrong");
+        assertEq(mockUSDT.balanceOf(address(vault)), 0, "Vault USDT not deducted");
+
+        vm.stopPrank();
+    }
+
+    function test_FuzzWithdraw(uint256 amount) public {
+        vm.assume(amount > 0 && amount <= 1_000_000_000e6);
+
+        vm.startPrank(user);
+        mockUSDT.mint(user, amount);
+        mockUSDT.approve(address(vault), amount);
+        vault.deposit(amount);
+        vm.stopPrank();
+
+        vm.startPrank(user);
+        // Execute withdrawal
+        vault.withdraw(amount);
+
+        // Verify post-withdrawal state
+        assertEq(mockUSDT.balanceOf(user), amount, "USDT not returned");
         assertEq(lpToken.balanceOf(user), 0, "LP tokens not burned");
         assertEq(vault.totalLiquidity(), 0, "total liqudity is wrong");
         assertEq(mockUSDT.balanceOf(address(vault)), 0, "Vault USDT not deducted");
