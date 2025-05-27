@@ -112,6 +112,8 @@ contract PerpEngineTest is Test {
     function testClosePositionWithProfit() public {
         // Open position
         vm.startPrank(alice);
+        uint256 valutBalanceBefor = usdt.balanceOf(address(vault));
+
         usdt.approve(address(perpEngine), COLLATERAL_AMOUNT + TRADING_FEE);
         uint256 positionId = perpEngine.openPosition(COLLATERAL_AMOUNT, POSITION_SIZE, true);
 
@@ -142,24 +144,36 @@ contract PerpEngineTest is Test {
         PerpEngine.Position memory position = perpEngine.getPosition(positionId);
         assertFalse(position.isActive);
 
+        // 100,000,000000
+        // 99,510,000000
+        // 490,000000
+
+        // So the protocol profited:
+        // ✅ $500 trader profit
+        // ✅ +$5 trading fee (0.1%)
+        // → Total vault loss: $490
+
+        uint256 valutBalabceAfter = usdt.balanceOf(address(vault));
+        uint256 expectVaultLoss = 490e6;
+        uint256 actualValutLoss = valutBalanceBefor - valutBalabceAfter;
+
+        assertEq(actualValutLoss, expectVaultLoss);
+
         vm.stopPrank();
     }
 
     function testClosePositionWithLoss() public {
         // Open position
         vm.startPrank(alice);
+        uint256 valutBalanceBefor = usdt.balanceOf(address(vault));
+
         // 5 usdc trading fee is fee
         usdt.approve(address(perpEngine), COLLATERAL_AMOUNT + TRADING_FEE);
         uint256 positionId = perpEngine.openPosition(COLLATERAL_AMOUNT, POSITION_SIZE, true);
-        (, int256 answer,,,) = priceFeed.latestRoundData();
         // 5000000000000
-        console.log("btc old price", answer);
         // Decrease BTC price to create loss
         uint256 newPrice = 45000e18; // $45,000 (-10%)
         priceFeed.updateAnswer(int256(newPrice / 1e10));
-        (, int256 answer1,,,) = priceFeed.latestRoundData();
-        // 5000000000000
-        console.log("btc new price", answer1);
         // Check unrealized P&L
         int256 unrealizedPnL = perpEngine.getUnrealizedPnL(positionId);
         assertLt(unrealizedPnL, 0); // Should be negative (loss)
@@ -171,7 +185,6 @@ contract PerpEngineTest is Test {
 
         uint256 balanceAfter = usdt.balanceOf(alice);
 
-        // Expected profit + collateral - trading fee = 1000 + 500 - 5 = 1495 USDT
         uint256 expectedLoss = 495e6;
         uint256 actualLoss = balanceAfter - balanceBefore;
         assertEq(expectedLoss, actualLoss);
@@ -180,6 +193,16 @@ contract PerpEngineTest is Test {
         PerpEngine.Position memory position = perpEngine.getPosition(positionId);
         assertFalse(position.isActive);
 
+        // So the protocol profited:
+        // ✅ $500 trader loss
+        // ✅ +$10 trading fee (0.1%)
+        // → Total vault gain: $510 (money is anthem of success- LDR)
+
+        uint256 valutBalabceAfter = usdt.balanceOf(address(vault));
+        uint256 expectVaultProfit = 510e6;
+        uint256 actualValutProfit = valutBalabceAfter - valutBalanceBefor;
+
+        assertEq(actualValutProfit, expectVaultProfit);
         vm.stopPrank();
     }
 
