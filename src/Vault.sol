@@ -22,14 +22,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {LPToken} from "./LPToken.sol";
 
 contract Vault is AccessControl {
+    using SafeERC20 for IERC20;
+
     bytes32 public constant PERP_ENGINE_ROLE = keccak256("PERP_ENGINE_ROLE");
 
-    ERC20 private immutable i_depositToken; // e.g., USDT
+    IERC20 private immutable i_depositToken; // e.g., USDT
     LPToken private immutable i_LPToken;
     uint256 public totalLiquidity;
     uint256 private reservedLiquidity;
@@ -44,7 +47,7 @@ contract Vault is AccessControl {
     error UnauthorizedAccess();
 
     constructor(address _depositToken, address _shareToken) {
-        i_depositToken = ERC20(_depositToken);
+        i_depositToken = IERC20(_depositToken);
         i_LPToken = LPToken(_shareToken);
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
@@ -65,7 +68,7 @@ contract Vault is AccessControl {
         if (amount == 0) revert ZeroAmount();
 
         totalLiquidity = totalLiquidity + amount;
-        i_depositToken.transferFrom(msg.sender, address(this), amount);
+        i_depositToken.safeTransferFrom(msg.sender, address(this), amount);
         i_LPToken.mint(msg.sender, amount);
         emit Deposit(msg.sender, amount);
     }
@@ -83,7 +86,7 @@ contract Vault is AccessControl {
         totalLiquidity = totalLiquidity - amount;
 
         i_LPToken.burn(msg.sender, amount);
-        i_depositToken.transfer(msg.sender, amount);
+        i_depositToken.safeTransfer(msg.sender, amount);
         emit Withdraw(msg.sender, amount);
     }
 
@@ -123,7 +126,7 @@ contract Vault is AccessControl {
                 profit = totalLiquidity;
             }
             totalLiquidity -= profit;
-            i_depositToken.transfer(trader, profit);
+            i_depositToken.safeTransfer(trader, profit);
         } else if (pnlAmount < 0) {
             // Trader has loss - add to vault liquidity
             uint256 loss = uint256(-pnlAmount);
@@ -155,7 +158,4 @@ contract Vault is AccessControl {
     function getReservedLiquidity() external view returns (uint256) {
         return reservedLiquidity;
     }
-
-    // Allow the contract to receive tokens
-    receive() external payable {}
 }

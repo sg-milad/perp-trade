@@ -3,11 +3,13 @@ pragma solidity ^0.8.20;
 
 import {AggregatorV3Interface} from "@chainlink/contracts/src/interfaces/feeds/AggregatorV3Interface.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {PriceConverter} from "./lib/PriceConverter.sol";
 import {Vault} from "./Vault.sol";
 
 contract PerpEngine is Ownable {
+    using SafeERC20 for IERC20;
     using PriceConverter for AggregatorV3Interface;
 
     // State variables
@@ -127,12 +129,12 @@ contract PerpEngine is Ownable {
 
         traderPositions[msg.sender].push(positionId);
 
-        collateralToken.transferFrom(msg.sender, address(vault), totalRequired);
-
         vault.reserveLiquidity(positionSize);
 
         totalTradingVolume += positionSize;
         totalFeesCollected += tradingFee;
+
+        collateralToken.safeTransferFrom(msg.sender, address(vault), totalRequired);
 
         emit PositionOpened(positionId, msg.sender, collateralAmount, positionSize, currentPrice, isLong, tradingFee);
     }
@@ -178,7 +180,7 @@ contract PerpEngine is Ownable {
         totalTradingVolume += additionalSize;
         totalFeesCollected += tradingFee;
 
-        collateralToken.transferFrom(msg.sender, address(vault), tradingFee);
+        collateralToken.safeTransferFrom(msg.sender, address(vault), tradingFee);
 
         emit PositionSizeIncreased(positionId, additionalSize, newSize, tradingFee);
     }
@@ -203,7 +205,7 @@ contract PerpEngine is Ownable {
 
         position.collateral += additionalCollateral;
 
-        collateralToken.transferFrom(msg.sender, address(vault), additionalCollateral);
+        collateralToken.safeTransferFrom(msg.sender, address(vault), additionalCollateral);
 
         emit CollateralAdded(positionId, additionalCollateral, position.collateral);
     }
