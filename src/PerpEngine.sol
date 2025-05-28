@@ -171,14 +171,14 @@ contract PerpEngine is Ownable {
             revert ExceedsUtilizationLimit();
         }
 
-        collateralToken.transferFrom(msg.sender, address(vault), tradingFee);
-
         position.size = newSize;
 
         vault.reserveLiquidity(additionalSize);
 
         totalTradingVolume += additionalSize;
         totalFeesCollected += tradingFee;
+
+        collateralToken.transferFrom(msg.sender, address(vault), tradingFee);
 
         emit PositionSizeIncreased(positionId, additionalSize, newSize, tradingFee);
     }
@@ -232,9 +232,10 @@ contract PerpEngine is Ownable {
         vault.releaseLiquidity(position.size);
 
         int256 netPnl = pnl - int256(tradingFee);
-        vault.settlePnL(msg.sender, int256(position.collateral) + netPnl);
 
         totalFeesCollected += tradingFee;
+
+        vault.settlePnL(msg.sender, int256(position.collateral) + netPnl);
 
         emit PositionClosed(positionId, pnl, tradingFee);
     }

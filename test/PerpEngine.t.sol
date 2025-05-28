@@ -196,7 +196,7 @@ contract PerpEngineTest is Test {
         // So the protocol profited:
         // ✅ $500 trader loss
         // ✅ +$10 trading fee (0.1%)
-        // → Total vault gain: $510 (money is anthem of success- LDR)
+        // → Total vault gain: $510 (money is anthem of success - LDR)
 
         uint256 valutBalabceAfter = usdt.balanceOf(address(vault));
         uint256 expectVaultProfit = 510e6;
