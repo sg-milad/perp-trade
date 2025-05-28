@@ -27,12 +27,12 @@ contract PerpEngine is Ownable {
     uint256 private nextPositionId = 1;
 
     struct Position {
-        address trader;
         uint256 collateral; // Collateral amount in USDT
         uint256 size; // Position size in USDT
         uint256 entryPrice; // Entry price of BTC
-        bool isLong; // Long or short position
         uint256 timestamp; // Position open timestamp
+        address trader;
+        bool isLong; // Long or short position
         bool isActive; // Position status
     }
 
@@ -79,7 +79,7 @@ contract PerpEngine is Ownable {
     error InsufficientBalance();
 
     constructor(address _vault, address _collateralToken, address _priceFeed) Ownable(msg.sender) {
-        vault = Vault(payable(_vault));
+        vault = Vault(_vault);
         collateralToken = IERC20(_collateralToken);
         priceFeed = AggregatorV3Interface(_priceFeed);
     }
@@ -246,7 +246,7 @@ contract PerpEngine is Ownable {
      * @notice Liquidate an undercollateralized position
      * @param positionId ID of the position to liquidate
      */
-    function liquidatePosition(uint256 positionId) external {
+    function liquidate(uint256 positionId) external {
         Position storage position = positions[positionId];
 
         if (!position.isActive) {
@@ -257,7 +257,7 @@ contract PerpEngine is Ownable {
         int256 pnl = _calculatePnL(position, currentPrice);
         int256 remainingCollateral = int256(position.collateral) + pnl;
 
-        if (remainingCollateral > int256(position.collateral * LIQUIDATION_THRESHOLD / BASIS_POINTS)) {
+        if (remainingCollateral > int256((position.collateral * LIQUIDATION_THRESHOLD) / BASIS_POINTS)) {
             revert PositionNotLiquidatable();
         }
 
