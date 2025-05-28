@@ -26,6 +26,7 @@ contract PerpEngineTest is Test {
     uint256 constant COLLATERAL_AMOUNT = 1000e6; // 1,000 USDT
     uint256 constant POSITION_SIZE = 5000e6; // 5,000 USDT
     uint256 constant TRADING_FEE = 5e6; // 5,000 USDT
+    uint256 public constant LIQUIDATION_REWARD = 500;
 
     function setUp() public {
         // Deploy mock tokens and price feed
@@ -356,10 +357,9 @@ contract PerpEngineTest is Test {
         // Get initial balances
         uint256 liquidatorBalanceBefore = usdt.balanceOf(liquidator);
         uint256 aliceBalanceBefore = usdt.balanceOf(alice);
-
         // Liquidate the position
         vm.prank(liquidator);
-        perpEngine.liquidatePosition(positionId);
+        perpEngine.liquidate(positionId);
 
         // Check position is no longer active
         PerpEngine.Position memory position = perpEngine.getPosition(positionId);
@@ -367,10 +367,12 @@ contract PerpEngineTest is Test {
 
         // Check that liquidator received reward
         uint256 liquidatorBalanceAfter = usdt.balanceOf(liquidator);
-        uint256 expectedLiquidationReward = (COLLATERAL_AMOUNT * 500) / 10000; // 5% = 50 USDT
+        uint256 expectedLiquidationReward = (COLLATERAL_AMOUNT * LIQUIDATION_REWARD) / 10000; // 5% = 50 USDT
 
         // Calculate remaining collateral after loss
         int256 pnl = perpEngine.getUnrealizedPnL(positionId); // Should be 0 now since position is closed
+        // assertFalse();
+
         // At $42,000: PnL = (42000 - 50000) * 5000 / 50000 = -800 USDT
         int256 remainingCollateral = int256(COLLATERAL_AMOUNT) + (-800e6);
         assertEq(remainingCollateral, 200e6); // 200 USDT remaining
@@ -404,7 +406,7 @@ contract PerpEngineTest is Test {
 
         // Liquidate the position
         vm.prank(liquidator);
-        perpEngine.liquidatePosition(positionId);
+        perpEngine.liquidate(positionId);
 
         // Check position is no longer active
         PerpEngine.Position memory position = perpEngine.getPosition(positionId);
@@ -412,7 +414,7 @@ contract PerpEngineTest is Test {
 
         // Check balances after liquidation
         uint256 liquidatorBalanceAfter = usdt.balanceOf(liquidator);
-        uint256 expectedLiquidationReward = (COLLATERAL_AMOUNT * 500) / 10000; // 5% = 50 USDT
+        uint256 expectedLiquidationReward = (COLLATERAL_AMOUNT * LIQUIDATION_REWARD) / 10000; // 5% = 50 USDT
 
         // For short position at $58,000: PnL = (50000 - 58000) * 5000 / 50000 = -800 USDT
         // Remaining collateral = 1000 - 800 = 200 USDT
@@ -441,7 +443,7 @@ contract PerpEngineTest is Test {
         // Try to liquidate - should revert
         vm.prank(liquidator);
         vm.expectRevert(PerpEngine.PositionNotLiquidatable.selector);
-        perpEngine.liquidatePosition(positionId);
+        perpEngine.liquidate(positionId);
     }
 
     function testLiquidatePositionCompletelyInsolvent() public {
@@ -465,7 +467,7 @@ contract PerpEngineTest is Test {
 
         // Liquidate the position
         vm.prank(liquidator);
-        perpEngine.liquidatePosition(positionId);
+        perpEngine.liquidate(positionId);
 
         // Check position is no longer active
         PerpEngine.Position memory position = perpEngine.getPosition(positionId);
@@ -492,7 +494,7 @@ contract PerpEngineTest is Test {
         // Try to liquidate closed position - should revert
         vm.prank(liquidator);
         vm.expectRevert(PerpEngine.PositionNotActive.selector);
-        perpEngine.liquidatePosition(positionId);
+        perpEngine.liquidate(positionId);
     }
 
     // =================== UTILITY FUNCTION TESTS ===================
@@ -606,8 +608,7 @@ contract PerpEngineTest is Test {
         vm.stopPrank();
 
         // Get position with P&L for inactive position
-        (PerpEngine.Position memory position, int256 unrealizedPnL, uint256 currentPrice, bool liquidatable) =
-            perpEngine.getPositionWithPnL(positionId);
+        (PerpEngine.Position memory position,,, bool liquidatable) = perpEngine.getPositionWithPnL(positionId);
 
         assertFalse(position.isActive);
         assertFalse(liquidatable); // Inactive positions are not liquidatable
