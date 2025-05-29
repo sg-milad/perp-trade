@@ -4,11 +4,10 @@ pragma solidity ^0.8.20;
 import {AggregatorV3Interface} from "@chainlink/contracts/src/interfaces/feeds/AggregatorV3Interface.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {PriceConverter} from "./lib/PriceConverter.sol";
 import {Vault} from "./Vault.sol";
 
-contract PerpEngine is Ownable {
+contract PerpEngine {
     using SafeERC20 for IERC20;
     using PriceConverter for AggregatorV3Interface;
 
@@ -78,7 +77,7 @@ contract PerpEngine is Ownable {
     error PositionNotLiquidatable();
     error InsufficientBalance();
 
-    constructor(address _vault, address _collateralToken, address _priceFeed) Ownable(msg.sender) {
+    constructor(address _vault, address _collateralToken, address _priceFeed) {
         vault = Vault(_vault);
         collateralToken = IERC20(_collateralToken);
         priceFeed = AggregatorV3Interface(_priceFeed);
@@ -104,7 +103,7 @@ contract PerpEngine is Ownable {
         if (collateralToken.balanceOf(msg.sender) < totalRequired) {
             revert InsufficientBalance();
         }
-
+        // 100e4 < 15,0000
         if (collateralAmount * BASIS_POINTS < positionSize * MIN_COLLATERAL_RATIO) {
             revert InsufficientCollateral();
         }
