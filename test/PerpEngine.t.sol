@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {Test, console} from "forge-std/Test.sol";
-import {PerpEngine} from "../src/PerpEngine.sol";
-import {Vault} from "../src/Vault.sol";
-import {LPToken} from "../src/LPToken.sol";
-import {MockUSDT} from "./mock/MockUSDT.sol";
-import {MockV3Aggregator} from "./mock/MockV3Aggregator.sol";
+import { Test, console } from "forge-std/Test.sol";
+import { PerpEngine } from "../src/PerpEngine.sol";
+import { Vault } from "../src/Vault.sol";
+import { LPToken } from "../src/LPToken.sol";
+import { MockUSDT } from "./mock/MockUSDT.sol";
+import { MockV3Aggregator } from "./mock/MockV3Aggregator.sol";
 
 contract PerpEngineTest is Test {
     PerpEngine perpEngine;
@@ -21,8 +21,8 @@ contract PerpEngineTest is Test {
     address liquidityProvider = makeAddr("liquidityProvider");
     address liquidator = makeAddr("liquidator");
 
-    uint256 constant INITIAL_BTC_PRICE = 50000e18; // $50,000
-    uint256 constant INITIAL_LIQUIDITY = 100000e6; // 100,000 USDT
+    uint256 constant INITIAL_BTC_PRICE = 50_000e18; // $50,000
+    uint256 constant INITIAL_LIQUIDITY = 100_000e6; // 100,000 USDT
     uint256 constant COLLATERAL_AMOUNT = 1000e6; // 1,000 USDT
     uint256 constant POSITION_SIZE = 5000e6; // 5,000 USDT
     uint256 constant TRADING_FEE = 5e6; // 5,000 USDT
@@ -47,8 +47,8 @@ contract PerpEngineTest is Test {
         vault.grantPerpEngineRole(address(perpEngine));
 
         // Mint tokens to users
-        usdt.mint(alice, 10000e6);
-        usdt.mint(bob, 10000e6);
+        usdt.mint(alice, 10_000e6);
+        usdt.mint(bob, 10_000e6);
         usdt.mint(liquidityProvider, INITIAL_LIQUIDITY);
 
         // Provide initial liquidity
@@ -119,7 +119,7 @@ contract PerpEngineTest is Test {
         uint256 positionId = perpEngine.openPosition(COLLATERAL_AMOUNT, POSITION_SIZE, true);
 
         // Increase BTC price to create profit
-        uint256 newPrice = 55000e18; // $55,000 (+10%)
+        uint256 newPrice = 55_000e18; // $55,000 (+10%)
         priceFeed.updateAnswer(int256(newPrice / 1e10));
 
         // Check unrealized P&L
@@ -173,7 +173,7 @@ contract PerpEngineTest is Test {
         uint256 positionId = perpEngine.openPosition(COLLATERAL_AMOUNT, POSITION_SIZE, true);
         // 5000000000000
         // Decrease BTC price to create loss
-        uint256 newPrice = 45000e18; // $45,000 (-10%)
+        uint256 newPrice = 45_000e18; // $45,000 (-10%)
         priceFeed.updateAnswer(int256(newPrice / 1e10));
         // Check unrealized P&L
         int256 unrealizedPnL = perpEngine.getUnrealizedPnL(positionId);
@@ -219,11 +219,11 @@ contract PerpEngineTest is Test {
 
     function test_RevertExceedsUtilization() public {
         vm.startPrank(alice);
-        usdt.approve(address(perpEngine), 50000e6);
+        usdt.approve(address(perpEngine), 50_000e6);
 
         // Try to open position that exceeds 80% utilization
         vm.expectRevert();
-        perpEngine.openPosition(50000e6, 90000e6, true); // More than 80% of 100k liquidity
+        perpEngine.openPosition(50_000e6, 90_000e6, true); // More than 80% of 100k liquidity
 
         vm.stopPrank();
     }
@@ -274,7 +274,7 @@ contract PerpEngineTest is Test {
         uint256 positionId = perpEngine.openPosition(COLLATERAL_AMOUNT, POSITION_SIZE, false);
 
         // Decrease BTC price to create profit for short position
-        uint256 newPrice = 45000e18; // $45,000 (-10%)
+        uint256 newPrice = 45_000e18; // $45,000 (-10%)
         priceFeed.updateAnswer(int256(newPrice / 1e10));
 
         // Check unrealized P&L - should be positive for short when price decreases
@@ -306,7 +306,7 @@ contract PerpEngineTest is Test {
         uint256 positionId = perpEngine.openPosition(COLLATERAL_AMOUNT, POSITION_SIZE, false);
 
         // Increase BTC price to create loss for short position
-        uint256 newPrice = 55000e18; // $55,000 (+10%)
+        uint256 newPrice = 55_000e18; // $55,000 (+10%)
         priceFeed.updateAnswer(int256(newPrice / 1e10));
 
         // Check unrealized P&L - should be negative for short when price increases
@@ -343,7 +343,7 @@ contract PerpEngineTest is Test {
         // Price drops significantly to trigger liquidation
         // Liquidation threshold is 80% of collateral = 800 USDT
         // For liquidation: remaining collateral <= 800 USDT
-        uint256 newPrice = 42000e18; // $42,000 (-16% from $50,000)
+        uint256 newPrice = 42_000e18; // $42,000 (-16% from $50,000)
         priceFeed.updateAnswer(int256(newPrice / 1e10));
 
         // Check if position is liquidatable
@@ -367,7 +367,7 @@ contract PerpEngineTest is Test {
 
         // Check that liquidator received reward
         uint256 liquidatorBalanceAfter = usdt.balanceOf(liquidator);
-        uint256 expectedLiquidationReward = (COLLATERAL_AMOUNT * LIQUIDATION_REWARD) / 10000; // 5% = 50 USDT
+        uint256 expectedLiquidationReward = (COLLATERAL_AMOUNT * LIQUIDATION_REWARD) / 10_000; // 5% = 50 USDT
 
         // Calculate remaining collateral after loss
         int256 pnl = perpEngine.getUnrealizedPnL(positionId); // Should be 0 now since position is closed
@@ -394,7 +394,7 @@ contract PerpEngineTest is Test {
         vm.stopPrank();
 
         // Price increases significantly to trigger liquidation for short position
-        uint256 newPrice = 58000e18; // $58,000 (+16% from $50,000)
+        uint256 newPrice = 58_000e18; // $58,000 (+16% from $50,000)
         priceFeed.updateAnswer(int256(newPrice / 1e10));
 
         // Check if position is liquidatable
@@ -414,7 +414,7 @@ contract PerpEngineTest is Test {
 
         // Check balances after liquidation
         uint256 liquidatorBalanceAfter = usdt.balanceOf(liquidator);
-        uint256 expectedLiquidationReward = (COLLATERAL_AMOUNT * LIQUIDATION_REWARD) / 10000; // 5% = 50 USDT
+        uint256 expectedLiquidationReward = (COLLATERAL_AMOUNT * LIQUIDATION_REWARD) / 10_000; // 5% = 50 USDT
 
         // For short position at $58,000: PnL = (50000 - 58000) * 5000 / 50000 = -800 USDT
         // Remaining collateral = 1000 - 800 = 200 USDT
@@ -434,7 +434,7 @@ contract PerpEngineTest is Test {
         vm.stopPrank();
 
         // Price drops slightly but not enough for liquidation
-        uint256 newPrice = 49000e18; // $48,000 (-2% from $50,000)
+        uint256 newPrice = 49_000e18; // $48,000 (-2% from $50,000)
         priceFeed.updateAnswer(int256(newPrice / 1e10));
 
         // Check position is not liquidatable
@@ -455,7 +455,7 @@ contract PerpEngineTest is Test {
         vm.stopPrank();
 
         // Price drops drastically to make position completely insolvent
-        uint256 newPrice = 35000e18; // $35,000 (-30% from $50,000)
+        uint256 newPrice = 35_000e18; // $35,000 (-30% from $50,000)
         priceFeed.updateAnswer(int256(newPrice / 1e10));
 
         // Position should be liquidatable
@@ -507,7 +507,7 @@ contract PerpEngineTest is Test {
         vm.stopPrank();
 
         // Change price
-        uint256 newPrice = 55000e18; // $55,000 (+10%)
+        uint256 newPrice = 55_000e18; // $55,000 (+10%)
         priceFeed.updateAnswer(int256(newPrice / 1e10));
 
         // Get position with P&L
@@ -561,7 +561,7 @@ contract PerpEngineTest is Test {
         vm.stopPrank();
 
         // Price that makes long positions liquidatable but not short
-        uint256 newPrice = 42000e18; // $42,000 (-16%)
+        uint256 newPrice = 42_000e18; // $42,000 (-16%)
         priceFeed.updateAnswer(int256(newPrice / 1e10));
 
         // Get liquidatable positions

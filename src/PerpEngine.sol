@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {AggregatorV3Interface} from "@chainlink/contracts/src/interfaces/feeds/AggregatorV3Interface.sol";
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {PriceConverter} from "./lib/PriceConverter.sol";
-import {Vault} from "./Vault.sol";
+import { AggregatorV3Interface } from "@chainlink/contracts/src/interfaces/feeds/AggregatorV3Interface.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import { PriceConverter } from "./lib/PriceConverter.sol";
+import { Vault } from "./Vault.sol";
 
 contract PerpEngine {
     using SafeERC20 for IERC20;
@@ -17,7 +17,7 @@ contract PerpEngine {
     AggregatorV3Interface public immutable priceFeed; // BTC/USD price feed
 
     uint256 public constant MAX_UTILIZATION_RATE = 8000;
-    uint256 public constant BASIS_POINTS = 10000;
+    uint256 public constant BASIS_POINTS = 10_000;
     uint256 public constant LIQUIDATION_THRESHOLD = 8000;
     uint256 public constant MIN_COLLATERAL_RATIO = 150;
     uint256 public constant LIQUIDATION_REWARD = 500;
@@ -89,7 +89,11 @@ contract PerpEngine {
      * @param positionSize Size of the position in USDT
      * @param isLong True for long position, false for short
      */
-    function openPosition(uint256 collateralAmount, uint256 positionSize, bool isLong)
+    function openPosition(
+        uint256 collateralAmount,
+        uint256 positionSize,
+        bool isLong
+    )
         external
         returns (uint256 positionId)
     {

@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {Script, console} from "forge-std/Script.sol";
-import {LPToken} from "../src/LPToken.sol";
-import {Vault} from "../src/Vault.sol";
-import {PerpEngine} from "../src/PerpEngine.sol";
-import {MockUSDT} from "../test/mock/MockUSDT.sol";
-import {MockV3Aggregator} from "../test/mock/MockV3Aggregator.sol";
+import { Script, console } from "forge-std/Script.sol";
+import { LPToken } from "../src/LPToken.sol";
+import { Vault } from "../src/Vault.sol";
+import { PerpEngine } from "../src/PerpEngine.sol";
+import { MockUSDT } from "../test/mock/MockUSDT.sol";
+import { MockV3Aggregator } from "../test/mock/MockV3Aggregator.sol";
 
 contract DeployerScript is Script {
-    uint256 constant INITIAL_BTC_PRICE = 50000e18; // $50,000
+    uint256 constant INITIAL_BTC_PRICE = 50_000e18; // $50,000
 
     LPToken public lPToken;
     Vault public vault;
@@ -18,7 +18,7 @@ contract DeployerScript is Script {
     MockV3Aggregator public priceFeed;
     address deployer = makeAddr("deployer");
 
-    function setUp() public {}
+    function setUp() public { }
 
     function run() public {
         vm.startBroadcast();
