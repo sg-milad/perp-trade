@@ -2,50 +2,15 @@
 
 A minimal, modular, and secure decentralized perpetuals trading protocol. Inspired by the elegance of simplicity, this MVP is built to demonstrate the core mechanics behind perpetual derivatives—trustless margin trading, liquidity provisioning, and real-time liquidation.
 
-## 🌟 Goal & Deliverables
+## 🎯 Goal & Deliverables
 
-This is **Mission 1**—implementing approximately **50%** of the essential features of a decentralized perpetual protocol. The smart contract codebase is intentionally compact (\~a few hundred lines), focusing on clarity and correctness.
-
-## ✅ Must-Have Features
-
-### 🧱 Protocol Components
-
-* **Liquidity Providers**
-
-  * Can deposit and withdraw liquidity into/from the vault.
-  * Withdrawals are restricted if funds are reserved for active trader positions.
-
-* **Oracle Integration**
-
-  * Real-time asset pricing fetched via a mock oracle (expandable in the future).
-
-* **Traders**
-
-  * Can open and close BTC perpetual positions with specified size and collateral.
-  * Can increase position size and collateral.
-  * Cannot exceed a configured leverage cap (based on protocol's available liquidity).
-
-* **Risk Management**
-
-  * Ensures sufficient margin is maintained.
-  * Prevents excessive liquidity use or withdrawal when positions are open.
-
-### ♻️ Liquidation Bot
-
-* [Liquidator Bot Repo](https://github.com/sg-milad/liquidator)
-  A functional off-chain bot monitors positions and triggers liquidation when conditions are breached.
-
-### 🌐 Frontend Interface *(WIP)*
-
-* [Frontend Repo](https://github.com/sg-milad/perp-frontend)
-  A simple UI for interacting with the protocol (positions, vault, oracle).
-  Currently in development—community contributions welcome!
-
----
+This protocol has **2 Missions**. This repository delivers **Mission 1**, which implements roughly **50%** of the basic functionality of a decentralized perpetuals protocol. The smart contract codebase is intentionally compact (\~a few hundred lines), focusing on clarity and correctness.
 
 ## 🧠 System Overview
 
-### ↺ User Flow & Interactions
+The protocol uses a **virtual AMM (vAMM)** model to simulate trading without requiring real counterparties. The vAMM is responsible for pricing trades based on supply and demand dynamics, enabling decentralized and trustless perpetual swaps.
+
+### 🔄 User Flow & Interactions
 
 1. **Liquidity Provider** deposits collateral into the vault.
 2. **Trader** opens a long/short position by depositing margin and selecting leverage.
@@ -62,15 +27,7 @@ This is **Mission 1**—implementing approximately **50%** of the essential feat
 
 ---
 
-## ⚠️ Known Risks & Issues
-
-* **Oracle Manipulation** – Current oracle is basic; secure oracles like Chainlink are recommended for production.
-* **Insolvency Risk** – If margin enforcement fails, LPs may suffer losses.
-* **Liquidator Dependency** – Requires active monitoring to enforce protocol health.
-
----
-
-## 📊 Key Formulas
+## 📐 Key Formulas
 
 * **PnL**:
   `PnL = Position Size * (Current Price - Entry Price)`
@@ -85,23 +42,9 @@ This is **Mission 1**—implementing approximately **50%** of the essential feat
 
 ## 🚀 Contributing
 
-This protocol is built by a solo dev—but it doesn't have to stay that way!
+Frontend help wanted! If you're into **DeFi**, **Solidity**, or **protocol design**, I’d love to collaborate.
 
-### 💡 What You Can Help With
-
-* Frontend development (React / ethers.js or viem)
-* UI design & UX improvements
-* Audit & security reviews
-* Writing docs or tutorials
-* Extending the liquidation bot
-* Unit tests and edge-case simulations
-
-### 📬 Contact Me
-
-If you're into **DeFi**, **Solidity**, or **protocol design** and want to contribute, **I’d love to collaborate!**
-
-* Message me on Telegram: [@Sg\_milad](https://t.me/Sg_milad)
-* Or open an issue / pull request on GitHub
+📩 DM me on Telegram: [@Sg\_milad](https://t.me/Sg_milad)
 
 > Let’s build the simplest, most secure perpetuals protocol—together.
 
@@ -111,6 +54,6 @@ If you're into **DeFi**, **Solidity**, or **protocol design** and want to contri
 
 | Component          | Link                                                                           |
 | ------------------ | ------------------------------------------------------------------------------ |
-| 🔒 Smart Contracts | [github.com/sg-milad/perp-trade](https://github.com/sg-milad/perp-trade)                                                  |
+| 🔒 Smart Contracts | [github.com/sg-milad/perp-trade](https://github.com/sg-milad/perp-trade)       |
 | 🧠 Liquidator Bot  | [github.com/sg-milad/liquidator](https://github.com/sg-milad/liquidator)       |
 | 🌐 Frontend        | [github.com/sg-milad/perp-frontend](https://github.com/sg-milad/perp-frontend) |
