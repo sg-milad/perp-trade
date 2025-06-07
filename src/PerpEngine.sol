@@ -107,7 +107,6 @@ contract PerpEngine {
         if (collateralToken.balanceOf(msg.sender) < totalRequired) {
             revert InsufficientBalance();
         }
-        // 100e4 < 15,0000
         if (collateralAmount * BASIS_POINTS < positionSize * MIN_COLLATERAL_RATIO) {
             revert InsufficientCollateral();
         }
@@ -119,7 +118,6 @@ contract PerpEngine {
         uint256 currentPrice = priceFeed.getPrice();
         positionId = nextPositionId++;
 
-        // Create position
         positions[positionId] = Position({
             trader: msg.sender,
             collateral: collateralAmount,
