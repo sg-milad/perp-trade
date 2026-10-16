@@ -8,7 +8,10 @@ This protocol has **2 Missions**. This repository delivers **Mission 1**, which 
 
 ## 🧠 System Overview
 
-The protocol uses a **virtual AMM (vAMM)** model to simulate trading without requiring real counterparties. The vAMM is responsible for pricing trades based on supply and demand dynamics, enabling decentralized and trustless perpetual swaps.
+The protocol uses an **oracle-priced pool** model. There is no
+order book and no AMM curve: every trade executes at the Chainlink BTC/USD
+price, and the USDT Vault funded by liquidity providers pays trader profits
+and keeps trader losses plus fees.
 
 ### 🔄 User Flow & Interactions
 
