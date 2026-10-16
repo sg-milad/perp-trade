@@ -36,6 +36,40 @@ closed by force once they have lost 20% of their posted collateral.
 `PerpEngine` holds no USDT. All collateral, fees, and payouts sit in `Vault`.
 `Vault` never prices anything; it only obeys `PerpEngine` instructions.
 
+## Why the Vault exists
+
+The Vault is the single wallet for the whole protocol. Every USDT movement —
+LP deposits, trader collateral, open fees, close payouts, keeper rewards —
+passes through it. It exists for two reasons:
+
+1. One guarded pot: instead of each position holding its own collateral scattered
+   across contracts, all money sits in one place with one rule — only the engine
+   contract can move money out for payouts. Traders can only pull their own free
+   deposits back out; they can never reach anyone else's money.
+2. It remembers two numbers: `totalLiquidity` (how much LP money the pool has)
+   and `reservedLiquidity` (how much of it is currently backing open positions).
+   The difference is the free money: new positions can only reserve from the
+   free part, and LPs can only withdraw from the free part. That is what stops
+   the pool from promising payouts it cannot cover — at most 80% of pool money
+   can back trades at once, and withdrawals can never touch the locked 80%.
+
+When a trade closes, `settlePnL` does the payout: winners get paid from the pot
+(losses shrink it), losers get nothing and their collateral stays in the pot
+(gains grow it). Fees from every open and close also stay in the pot as income
+for the liquidity providers.
+
+## Why the LPToken exists
+
+When you deposit USDT as a liquidity provider, you need a receipt proving your
+share so you can claim it back later. That receipt is the LPToken (called
+vUSD). Deposit 1,000 USDT, get 1,000 vUSD. Withdraw 1,000 USDT, your 1,000 vUSD
+is destroyed. It is 1:1, always — there is no price math on it.
+
+It also protects you: `withdraw` burns your vUSD first, so you can only take
+out what your receipts cover. An attacker with no vUSD gets nothing even
+though the Vault holds everyone's money (the test suite checks exactly this).
+Only the Vault can create or destroy vUSD, so no one can print fake receipts.
+
 ## Deployment and trust wiring
 
 Order from `script/Deployer.s.sol`:

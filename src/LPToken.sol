@@ -7,7 +7,7 @@ import { AccessControl } from "@openzeppelin/contracts/access/AccessControl.sol"
 
 contract LPToken is ERC20, Ownable, AccessControl {
     bytes32 private constant MINT_AND_BURN_ROLE = keccak256("MINT_AND_BURN_ROLE"); // Role for minting and burning
-        // tokens (the vault contracts)
+    // tokens (the vault contracts)
 
     constructor() ERC20("Vault LP Token", "vUSD") Ownable(msg.sender) { }
 
